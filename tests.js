@@ -1,0 +1,8 @@
+const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
+const root=__dirname;
+test('all required frontend assets exist',()=>{for(const f of ['index.html','styles.css','app.js','server.js'])assert.ok(fs.existsSync(path.join(root,f)),`${f} missing`)});
+test('app defines approval gate before execution handler',()=>{const s=fs.readFileSync(path.join(root,'app.js'),'utf8');assert.match(s,/function requestApproval\(/);assert.match(s,/function approve\(/);assert.match(s,/a\.status==='pending'/);assert.match(s,/SIMULATED — NOT AN AI MODEL/)});
+test('app does not contain provider secrets',()=>{const s=fs.readFileSync(path.join(root,'app.js'),'utf8');assert.doesNotMatch(s,/sk-[A-Za-z0-9]{16,}/);assert.doesNotMatch(s,/AIza[A-Za-z0-9_-]{20,}/)});
+test('server serves only explicit public assets',()=>{const s=fs.readFileSync(path.join(root,'server.js'),'utf8');assert.match(s,/const publicFiles = new Set\(\["index.html","styles.css","app.js","blind-test.html","blind-test.js"\]\)/);assert.match(s,/\.env/)});
+test('blind challenge keeps rule definitions server-side and validates locked predictions',()=>{const s=fs.readFileSync(path.join(root,'server.js'),'utf8');assert.match(s,/blindRules/);assert.match(s,/blindTrials\.set/);assert.match(s,/blindTrials\.delete/);assert.match(s,/api\/blind\/submit/);assert.ok(fs.existsSync(path.join(root,'blind-test.js')))});
+test('starter experiments include causal, memory, and self-model tests',()=>{const s=fs.readFileSync(path.join(root,'app.js'),'utf8');for(const k of ['lantern','memory','metacognition','novel'])assert.ok(s.includes(`id:'${k}'`))});

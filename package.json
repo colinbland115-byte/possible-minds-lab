@@ -1,0 +1,1 @@
+{"name":"possible-minds-lab","version":"1.0.0","private":true,"description":"A controlled, mobile-friendly workspace for comparative AI learning and self-model research","scripts":{"start":"node server.js","test":"node --test tests.js"},"engines":{"node":">=18"}}
